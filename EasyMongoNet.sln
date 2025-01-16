@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35431.28
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyMongoNet", "EasyMongoNet\EasyMongoNet.csproj", "{78261990-789C-4112-A4AF-6FE38CE38CDF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{78261990-789C-4112-A4AF-6FE38CE38CDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78261990-789C-4112-A4AF-6FE38CE38CDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78261990-789C-4112-A4AF-6FE38CE38CDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78261990-789C-4112-A4AF-6FE38CE38CDF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1F3913CF-BB67-4918-9430-EC858C179630}
+	EndGlobalSection
+EndGlobal
