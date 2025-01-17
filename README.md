@@ -14,7 +14,7 @@ With it, you can streamline data access using best practices, abstracting the re
 You can install the package via NuGet Package Manager or the CLI:
 
 Using NuGet Package Manager:
-<pre> Install-Package RepoMongoNet </pre>
+<pre> Install-Package EasyMongoNet </pre>
 
 🛠️ Configuration
 
@@ -40,7 +40,7 @@ using YourNamespace;
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure MongoDB options
-builder.Services.AddMongoRepoNet(builder.Configuration!);
+builder.Services.AddEasyMongoNet(builder.Configuration!);
 
 var app = builder.Build();
 ```
