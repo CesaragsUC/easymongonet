@@ -1,5 +1,5 @@
 
-# 📦 RepoMongoNet - A MongoDb Repository for .NET
+# 📦 EasyMongoNet - A MongoDb Repository for .NET
 
 A generic repository with complete implementations for MongoDB using .NET.
 
@@ -44,6 +44,37 @@ builder.Services.AddMongoRepoNet(builder.Configuration!);
 
 var app = builder.Build();
 ```
+The IDocument interface is designed to standardize the structure of documents stored in MongoDB within a .NET Core application. 
+
+It provides a consistent way to handle common properties for all documents, such as the unique identifier (Id), creation timestamp (CreatedAt), and modification timestamp (ModifiedAt)
+
+```csharp
+public interface IDocument
+{
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id { get; }
+
+    DateTime CreatedAt { get; set; }
+
+    [BsonIgnoreIfNull]
+    DateTime? ModifiedAt { get; set; }
+}
+
+public abstract class Document : IDocument
+{
+    protected Document()
+    {
+        Id = ObjectId.GenerateNewId().ToString();
+    }
+    public string Id { get; set; }
+
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+    [BsonIgnoreIfNull]
+    public DateTime? ModifiedAt { get; set; }
+}
+```
 
 🎯 Usage
 
@@ -53,7 +84,6 @@ Define an entity in your project:
 ```csharp
 public class Product
 {
-    public int Id { get; set; }
     public string Name { get; set; }
     public decimal Price { get; set; }
 }
@@ -76,7 +106,7 @@ public class ProductsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(Product product)
     {
-        await _repository.InsertAsync(product);
+        await _repository.InsertOneAsync(product);
         return Ok("Product successfully created!");
     }
 
@@ -86,18 +116,29 @@ public class ProductsController : ControllerBase
         var products = await _repository.GetAllAsync();
         return Ok(products);
     }
+
+    [HttpGet]
+    [Route("filter")]
+    public async Task<IActionResult> Filter2()
+    {
+        var product = await _repository.FilterBy(
+                    filter => filter.Name.Equals("Smartphone X"),
+                    projection => projection.Name
+                );
+
+        return Ok(product);
+    }
 }
 ```
 
 ⚙️ Features
 
-Full CRUD:
-
 * InsertAsync(TEntity obj) - Adds a new entity.
-* GetById(string field, Guid id) - Retrieves an entity by ID.
+* FindByIdAsync(string id) - Retrieves an entity by ID.
 * GetAllAsync(int page = 1, int pageSize = 10, string sort = "asc") - Retrieves all entities with pagination.
-* UpdateAsync(string field, TEntity obj, string collectionName) - Updates an existing entity.
-* Delete(string field, Guid id, string collectionName) - Removes an entity by ID.
+* UpdateAsync(T entity) - Updates an existing entity.
+* ReplaceOneAsync(T entity)
+* DeleteByIdAsync(string id)
 * And much more..
 
 Performance:
