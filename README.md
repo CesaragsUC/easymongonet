@@ -133,13 +133,21 @@ public class ProductsController : ControllerBase
 
 ⚙️ Features
 
-* InsertAsync(TEntity obj) - Adds a new entity.
-* FindByIdAsync(string id) - Retrieves an entity by ID.
-* GetAllAsync(int page = 1, int pageSize = 10, string sort = "asc") - Retrieves all entities with pagination.
-* UpdateAsync(T entity) - Updates an existing entity.
-* ReplaceOneAsync(T entity)
-* DeleteByIdAsync(string id)
-* And much more..
+* **AsQueryable()** - Enables LINQ queries on the collection.
+* **FilterBy**(Expression<Func<TDocument, bool>> filterExpression) - Filters documents based on a condition.
+* **FilterBy**<TProjected>(Expression<Func<TDocument, bool>> filterExpression, Expression<Func<TDocument, TProjected>> projectionExpression) - Filters and projects documents based on conditions and projections.
+* **FindOne**(Expression<Func<TDocument, bool>> filterExpression) - Finds a single document matching a condition.
+* **FindById**(string id) - Retrieves a document by its ObjectId.
+* **FindById**(string field, string id) - Retrieves a document by a specific field.
+* **InsertOneAsync**(TDocument document) - Asynchronously inserts a single document.
+* **InsertManyAsync**(ICollection<TDocument> documents) - Asynchronously inserts multiple documents.
+* **ReplaceOneAsync**(TDocument document) - Replaces an existing document asynchronously.
+* **UpdateAsync**(TDocument document) - Updates an existing document asynchronously.
+* **UpdateAsync**<TField>(Expression<Func<TDocument, bool>> whereCondition, Expression<Func<TDocument, TField>> field, TField value) - Updates a specific field of a document matching a condition.
+* **DeleteOneAsync**(Expression<Func<TDocument, bool>> filterExpression) - Asynchronously deletes a document matching a condition.
+* **DeleteManyAsync**(Expression<Func<TDocument, bool>> filterExpression) - Asynchronously deletes multiple documents matching a condition.
+* **DeleteByIdAsync**(string id) - Deletes a document by its ObjectId asynchronously.
+* **PagedResult<TDocument> GetAllAsync**(int page = 1, int pageSize = 10) - Retrieves all documents paginated.
 
 Performance:
 
