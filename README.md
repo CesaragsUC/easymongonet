@@ -82,7 +82,7 @@ Creating an Entity
 
 Define an entity in your project:
 ```csharp
-public class Product
+public class Product : Document
 {
     public string Name { get; set; }
     public decimal Price { get; set; }
@@ -119,7 +119,7 @@ public class ProductsController : ControllerBase
 
     [HttpGet]
     [Route("filter")]
-    public async Task<IActionResult> Filter2()
+    public async Task<IActionResult> Filter()
     {
         var product = await _repository.FilterBy(
                     filter => filter.Name.Equals("Smartphone X"),
