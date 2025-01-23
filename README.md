@@ -1,5 +1,5 @@
 
-# 📦 RepoMongoNet - A MongoDb Repository for .NET
+# 📦 EasyMongoNet - A MongoDb Repository for .NET
 
 A generic repository with complete implementations for MongoDB using .NET.
 
@@ -14,7 +14,7 @@ With it, you can streamline data access using best practices, abstracting the re
 You can install the package via NuGet Package Manager or the CLI:
 
 Using NuGet Package Manager:
-<pre> Install-Package RepoMongoNet </pre>
+<pre> Install-Package EasyMongoNet </pre>
 
 🛠️ Configuration
 
@@ -40,9 +40,40 @@ using YourNamespace;
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure MongoDB options
-builder.Services.AddMongoRepoNet(builder.Configuration!);
+builder.Services.AddEasyMongoNet(builder.Configuration!);
 
 var app = builder.Build();
+```
+The IDocument interface is designed to standardize the structure of documents stored in MongoDB within a .NET Core application. 
+
+It provides a consistent way to handle common properties for all documents, such as the unique identifier (Id), creation timestamp (CreatedAt), and modification timestamp (ModifiedAt)
+
+```csharp
+public interface IDocument
+{
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id { get; }
+
+    DateTime CreatedAt { get; set; }
+
+    [BsonIgnoreIfNull]
+    DateTime? ModifiedAt { get; set; }
+}
+
+public abstract class Document : IDocument
+{
+    protected Document()
+    {
+        Id = ObjectId.GenerateNewId().ToString();
+    }
+    public string Id { get; set; }
+
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+    [BsonIgnoreIfNull]
+    public DateTime? ModifiedAt { get; set; }
+}
 ```
 
 🎯 Usage
@@ -51,9 +82,8 @@ Creating an Entity
 
 Define an entity in your project:
 ```csharp
-public class Product
+public class Product : Document
 {
-    public int Id { get; set; }
     public string Name { get; set; }
     public decimal Price { get; set; }
 }
@@ -76,7 +106,7 @@ public class ProductsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(Product product)
     {
-        await _repository.InsertAsync(product);
+        await _repository.InsertOneAsync(product);
         return Ok("Product successfully created!");
     }
 
@@ -86,19 +116,38 @@ public class ProductsController : ControllerBase
         var products = await _repository.GetAllAsync();
         return Ok(products);
     }
+
+    [HttpGet]
+    [Route("filter")]
+    public async Task<IActionResult> Filter()
+    {
+        var product = await _repository.FilterBy(
+                    filter => filter.Name.Equals("Smartphone X"),
+                    projection => projection.Name
+                );
+
+        return Ok(product);
+    }
 }
 ```
 
 ⚙️ Features
 
-Full CRUD:
-
-* InsertAsync(TEntity obj) - Adds a new entity.
-* GetById(string field, Guid id) - Retrieves an entity by ID.
-* GetAllAsync(int page = 1, int pageSize = 10, string sort = "asc") - Retrieves all entities with pagination.
-* UpdateAsync(string field, TEntity obj, string collectionName) - Updates an existing entity.
-* Delete(string field, Guid id, string collectionName) - Removes an entity by ID.
-* And much more..
+* **AsQueryable()** - Enables LINQ queries on the collection.
+* **FilterBy**(Expression<Func<TDocument, bool>> filterExpression) - Filters documents based on a condition.
+* **FilterBy**<TProjected>(Expression<Func<TDocument, bool>> filterExpression, Expression<Func<TDocument, TProjected>> projectionExpression) - Filters and projects documents based on conditions and projections.
+* **FindOne**(Expression<Func<TDocument, bool>> filterExpression) - Finds a single document matching a condition.
+* **FindById**(string id) - Retrieves a document by its ObjectId.
+* **FindById**(string field, string id) - Retrieves a document by a specific field.
+* **InsertOneAsync**(TDocument document) - Asynchronously inserts a single document.
+* **InsertManyAsync**(ICollection<TDocument> documents) - Asynchronously inserts multiple documents.
+* **ReplaceOneAsync**(TDocument document) - Replaces an existing document asynchronously.
+* **UpdateAsync**(TDocument document) - Updates an existing document asynchronously.
+* **UpdateAsync**<TField>(Expression<Func<TDocument, bool>> whereCondition, Expression<Func<TDocument, TField>> field, TField value) - Updates a specific field of a document matching a condition.
+* **DeleteOneAsync**(Expression<Func<TDocument, bool>> filterExpression) - Asynchronously deletes a document matching a condition.
+* **DeleteManyAsync**(Expression<Func<TDocument, bool>> filterExpression) - Asynchronously deletes multiple documents matching a condition.
+* **DeleteByIdAsync**(string id) - Deletes a document by its ObjectId asynchronously.
+* **PagedResult<TDocument> GetAllAsync**(int page = 1, int pageSize = 10) - Retrieves all documents paginated.
 
 Performance:
 
