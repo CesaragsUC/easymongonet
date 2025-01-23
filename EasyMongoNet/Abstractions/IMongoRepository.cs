@@ -25,6 +25,15 @@ public interface IMongoRepository<TDocument> where TDocument : IDocument
     Task<PagedResult<TDocument>> GetAllAsync(int page = 1, int pageSize = 10);
 
     /// <summary>
+    /// Retrieves all documents from the collection, paginated.
+    /// </summary>
+    /// <param name="page">The page number to retrieve.</param>
+    /// <param name="pageSize">The number of documents per page.</param>
+    /// <param name="filter">The filter definition to apply.</param>
+    /// <param name="_sort">The sort definition to apply.</param>
+    Task<PagedResult<TDocument>> GetAllAsync(FilterDefinition<TDocument> filter, int page = 1, int pageSize = 10, string _sort = "");
+
+    /// <summary>
     /// Filters the documents in the collection based on the specified filter expression.
     /// </summary>
     /// <param name="filterExpression">The filter expression to apply.</param>
@@ -204,4 +213,15 @@ public interface IMongoRepository<TDocument> where TDocument : IDocument
     /// <param name="filterExpression">The filter expression to apply.</param>
     Task DeleteManyAsync(Expression<Func<TDocument, bool>> filterExpression);
 
+    /// <summary>
+    /// Asynchronously upserts a document in the collection.
+    /// <param name="filterExpression">The filter expression to apply.</param>
+    /// <param name="TDocument">The document to upsert.</param></param>
+    Task UpsertAsync(Expression<Func<TDocument, bool>> filterExpression, TDocument document);
+
+    /// <summary>
+    /// Asynchronously upserts a document in the collection.
+    /// <param name="id">Document Id</param>
+    /// <param name="TDocument">The document to upsert.</param></param>
+    Task UpsertAsync(string id, TDocument document);
 }

@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>EasyMongoNet</Title>
-		<Version>1.0.0</Version>
+		<Version>1.1.1</Version>
 		<Description>A generic repository with complete implementations for MongoDB using .NET.
 This package provides a complete implementation of a generic repository for .NET applications with MongoDB, simplifying Create, Read, Update, and Delete (CRUD) operations for entities in the database.
 With it, you can streamline data access using best practices, abstracting the repository layer and making your application cleaner and more decoupled.</Description>

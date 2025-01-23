@@ -49,6 +49,28 @@ public class MongoRepository<TDocument> : IMongoRepository<TDocument>
         };
     }
 
+    public virtual async Task<PagedResult<TDocument>> GetAllAsync(FilterDefinition<TDocument> filter, int page = 1, int pageSize = 10, string _sort = "")
+    {
+
+        var results = await _collection
+            .Find(filter)
+            .Sort(SortDefinition(_sort))
+            .Skip((page - 1) * pageSize)
+            .Limit(pageSize)
+            .ToListAsync();
+
+        var totalItems = await _collection.CountDocumentsAsync(filter);
+
+        return new PagedResult<TDocument>
+        {
+            Items = results,
+            TotalCount = (int)totalItems,
+            Page = page,
+            PageSize = pageSize
+
+        };
+    }
+
     public virtual async Task<IEnumerable<TDocument>> FilterBy(
         Expression<Func<TDocument, bool>> filterExpression)
     {
@@ -223,6 +245,19 @@ public class MongoRepository<TDocument> : IMongoRepository<TDocument>
         await _collection.DeleteManyAsync(filterExpression);
     }
 
+    public virtual async Task UpsertAsync(Expression<Func<TDocument, bool>> filterExpression, TDocument document)
+    {
+        var filter = Builders<TDocument>.Filter.Where(filterExpression);
+
+        await _collection.ReplaceOneAsync(filter, document, options: new ReplaceOptions { IsUpsert = true });
+    }
+
+
+    public virtual async Task UpsertAsync(string id, TDocument document)
+    {
+        var filter = Builders<TDocument>.Filter.Eq(doc => doc.Id, id);
+        await _collection.ReplaceOneAsync(filter, document, options: new ReplaceOptions { IsUpsert = true });
+    }
 
     private object GetEntityId(string field, TDocument entity)
     {
@@ -270,4 +305,17 @@ public class MongoRepository<TDocument> : IMongoRepository<TDocument>
 
         return updateDefinition;
     }
+
+    public SortDefinition<TDocument> SortDefinition(string sort)
+    {
+        var sortDefinition = Builders<TDocument>.Sort;
+
+        return sort switch
+        {
+            "asc" => sortDefinition.Ascending(doc => doc.CreatedAt),
+            "desc" => sortDefinition.Descending(doc => doc.CreatedAt),
+            _ => sortDefinition.Descending(doc => doc.CreatedAt),
+        };
+    }
+
 }
