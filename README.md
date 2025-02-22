@@ -42,7 +42,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configure MongoDB options
 builder.Services.AddEasyMongoNet(builder.Configuration!);
-builder.Services.AddHostedService<MongoDbHealthCheckService>(); // Optional: Health check service for database connection
+// A alternative for retry polices
+// services.AddEasyMongoNet(configuration, (int)HealthCheckOptions.Active);
 
 var app = builder.Build();
 ```
