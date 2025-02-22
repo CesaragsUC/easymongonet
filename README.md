@@ -6,6 +6,7 @@ A generic repository with complete implementations for MongoDB using .NET.
 ✨ Description
 
 This package provides a complete implementation of a generic repository for .NET applications with MongoDB, simplifying Create, Read, Update, and Delete (CRUD) operations for entities in the database.
+If you want resilience, optionaly you can register MongoDb HealthCheck Service, it use Retry with Polly.
 
 With it, you can streamline data access using best practices, abstracting the repository layer and making your application cleaner and more decoupled.
 
@@ -41,6 +42,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configure MongoDB options
 builder.Services.AddEasyMongoNet(builder.Configuration!);
+builder.Services.AddHostedService<MongoDbHealthCheckService>(); // Optional: Health check service for database connection
 
 var app = builder.Build();
 ```
