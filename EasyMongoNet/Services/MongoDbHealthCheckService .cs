@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Polly;
 using Polly.Retry;
@@ -50,17 +51,11 @@ public class MongoDbHealthCheckService : BackgroundService
         {
             await _retryPolicy.ExecuteAsync(async () =>
             {
-                var mongoClient = new MongoClient(new MongoClientSettings
-                {
-                    Server = _mongoClient.Settings.Server,
-                    ConnectTimeout = TimeSpan.FromSeconds(3),
-                    SocketTimeout = TimeSpan.FromSeconds(3)
-                });
+                // Use the pre-configured authenticated client
+                var database = _mongoClient.GetDatabase(_databaseName);
 
-                var database = mongoClient.GetDatabase(_databaseName);
-
-                var collections = await database.ListCollectionNamesAsync();
-                await collections.FirstOrDefaultAsync();
+                // Test connectivity with a simple operation
+                await database.RunCommandAsync((Command<BsonDocument>)"{ ping: 1 }");
 
                 Log.Information("[MongoDbHealthCheck] MongoDB is reachable.");
             });
