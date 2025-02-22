@@ -2,10 +2,10 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using Polly;
 using Polly.Retry;
+using Serilog;
 
 namespace EasyMongoNet.Services;
 
@@ -31,7 +31,7 @@ public class MongoDbHealthCheckService : BackgroundService
                 sleepDurationProvider: attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)), // Backoff exponencial
                 onRetry: (exception, timeSpan, retryCount, context) =>
                 {
-                    logger.LogWarning($"[Polly] MongoDB Retry {retryCount} - Waiting {timeSpan.TotalSeconds} sec due to: {exception.Message}");
+                    Log.Error("[Polly] MongoDB Retry {RetryCount} - Waiting {TimeSpan} sec due to: {ExceptionMessage}", retryCount, timeSpan.TotalSeconds, exception.Message);
                 });
     }
 
@@ -50,14 +50,25 @@ public class MongoDbHealthCheckService : BackgroundService
         {
             await _retryPolicy.ExecuteAsync(async () =>
             {
-                var database = _mongoClient.GetDatabase(_databaseName);
-                await database.RunCommandAsync((Command<BsonDocument>)"{ping:1}");
-                _logger.LogInformation("[MongoDbHealthCheck] MongoDB is reachable.");
+                var mongoClient = new MongoClient(new MongoClientSettings
+                {
+                    Server = _mongoClient.Settings.Server,
+                    ConnectTimeout = TimeSpan.FromSeconds(3),
+                    SocketTimeout = TimeSpan.FromSeconds(3)
+                });
+
+                var database = mongoClient.GetDatabase(_databaseName);
+
+                var collections = await database.ListCollectionNamesAsync();
+                await collections.FirstOrDefaultAsync();
+
+                Log.Information("[MongoDbHealthCheck] MongoDB is reachable.");
             });
         }
         catch (Exception ex)
         {
-            _logger.LogError("[MongoDbHealthCheck] MongoDB connection failed: {Message}", ex.Message);
+            Log.Error(ex, "[MongoDbHealthCheck] MongoDB connection failed: {Message}", ex.Message);
         }
     }
+
 }
